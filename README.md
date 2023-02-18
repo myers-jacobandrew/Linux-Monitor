@@ -1,35 +1,60 @@
-# Process Monitor and WebSocket Server
+# Process and Hardware Monitor
 
-This repository contains two scripts:
+This is a simple script that monitors running processes and CPU temperature on a Linux system and sends alerts to a WebSocket server when certain thresholds are exceeded.
 
-    process-monitor.sh: A shell script that monitors the CPU usage of a given process and sends an alert to a WebSocket server if the usage exceeds a certain threshold.
+## Requirements
 
-    websocket-server.js: A Node.js server that receives alerts from the process-monitor.sh script and logs them to the console.
+This script requires the following tools to be installed:
 
-## Getting Started
+-   `bash`
+-   `bc`
+-   `sensors`
+-   `websocketd`
 
-To use the process-monitor.sh script, you'll need to edit the script and set the PROCESS_NAME and CPU_THRESHOLD variables to match the process you want to monitor and the threshold at which you want to receive an alert. You'll also need to install the websocketd tool, which can be downloaded from the WebSocketd GitHub repository.
+You can install `bc` and `sensors` on Ubuntu or Debian systems with the following command:
 
-To use the websocket-server.js script, you'll need to install Node.js and the ws module, which can be installed using npm. Once you've installed the dependencies, you can start the server by running the following command:
+csharp
 
-node websocket-server.js
+`sudo apt-get install bc lm-sensors`
+
+To install `websocketd`, download the appropriate binary for your system from the [official website](https://websocketd.com/#download) and add it to your system path.
 
 ## Usage
 
-To use the process-monitor.sh script, simply run it from the command line and pass in the name of the process you want to monitor as an argument:
+To use this script, simply run the following command:
 
 bash
 
-./process-monitor.sh <process-name>
+`./monitor.sh`
 
-The script will then start monitoring the CPU usage of the specified process and send an alert to the WebSocket server if the usage exceeds the specified threshold.
+This will start the monitor and send alerts to the WebSocket server as needed.
 
-To view the alerts received by the WebSocket server, simply open a WebSocket client and connect to the server at ws://localhost:8080. The server will log each alert to the console as it is received.
+You can modify the alert thresholds and check interval by editing the variables at the top of the script.
 
-## Contributing
+## WebSocket Server
 
-If you find a bug or would like to suggest a new feature, please open an issue or submit a pull request.
+To receive alerts from the monitor, you'll need to run a WebSocket server that listens for incoming connections. You can use any WebSocket server that supports the `JSON` format.
+
+For example, you can use the following Python script to start a WebSocket server that listens on port `8080`:
+
+
+```python
+import asyncio
+import websockets
+
+async def handler(websocket, path):
+    async for message in websocket:
+        print(message)
+
+async def main():
+    async with websockets.serve(handler, "localhost", 8080):
+        await asyncio.Future()  # run forever
+
+asyncio.run(main())
+```
+
+Once the server is running, you should see incoming alerts from the monitor in the server console.
 
 ## License
 
-This repository is licensed under the MIT License.
+This project is licensed under the MIT License.
