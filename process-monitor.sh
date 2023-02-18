@@ -1,25 +1,32 @@
 #!/bin/bash
 
-# Set the process to monitor
-PROCESS_NAME="myprocess"
+# Set alert thresholds
+CPU_THRESHOLD=90   # CPU usage threshold in percent
+TEMP_THRESHOLD=70  # Temperature threshold in degrees Celsius
 
-# Set the CPU usage threshold in percentage
-CPU_THRESHOLD=50
-
-# Set the WebSocket endpoint to send the alert
-WEBSOCKET_ENDPOINT="wss://my.websocket.endpoint"
+# Check interval in seconds
+CHECK_INTERVAL=5
 
 while true; do
-  # Get the CPU usage of the process
-  CPU_USAGE=$(top -b -n1 | grep "$PROCESS_NAME" | awk '{print $9}')
+  # Check running processes
+  processes=$(ps aux --sort=-%cpu | head -n 11 | tail -n +2)
+  for process in $processes; do
+    cpu=$(echo $process | awk '{ print $3 }')
+    name=$(echo $process | awk '{ print $11 }')
+    pid=$(echo $process | awk '{ print $2 }')
 
-  # Check if the CPU usage is over the threshold
-  if [ $(echo "$CPU_USAGE > $CPU_THRESHOLD" | bc) -eq 1 ]; then
-    # Send an alert over the WebSocket
-    echo "CPU usage of $PROCESS_NAME is above threshold ($CPU_USAGE%)" | \
-      wscat -c $WEBSOCKET_ENDPOINT
+    if (( $(echo "$cpu > $CPU_THRESHOLD" | bc -l) )); then
+      # Send process alert to WebSocket server
+      echo "{\"sensor\": \"Process\", \"name\": \"$name\", \"pid\": \"$pid\", \"value\": \"$cpu\"}" | websocketd --port=8080 -
+    fi
+  done
+
+  # Check CPU temperature
+  temp=$(sensors | grep -oP 'Core 0:\s+\+\K[0-9.]+')
+  if (( $(echo "$temp > $TEMP_THRESHOLD" | bc -l) )); then
+    # Send temperature alert to WebSocket server
+    echo "{\"sensor\": \"CPU temperature\", \"value\": $temp}" | websocketd --port=8080 -
   fi
 
-  # Wait for 10 seconds before checking again
-  sleep 10
+  sleep $CHECK_INTERVAL
 done
