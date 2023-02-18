@@ -50,6 +50,26 @@ async def main():
 asyncio.run(main())
 ```
 
+Or alternatively, use js to start the server
+
+```js
+const WebSocket = require('ws');
+
+const server = new WebSocket.Server({ port: 8080 });
+
+server.on('connection', (socket) => {
+  console.log('Client connected');
+
+  socket.on('message', (message) => {
+    console.log(`Received message: ${message}`);
+  });
+
+  socket.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
+
+```
 Once the server is running, you should see incoming alerts from the monitor in the server console.
 
 ## License
