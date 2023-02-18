@@ -13,7 +13,6 @@ This script requires the following tools to be installed:
 
 You can install `bc` and `sensors` on Ubuntu or Debian systems with the following command:
 
-csharp
 
 `sudo apt-get install bc lm-sensors`
 
@@ -22,8 +21,6 @@ To install `websocketd`, download the appropriate binary for your system from th
 ## Usage
 
 To use this script, simply run the following command:
-
-bash
 
 `./monitor.sh`
 
