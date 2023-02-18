@@ -1,4 +1,4 @@
-# Process and Hardware Monitor
+# Linux Process and Hardware Monitor
 
 This is a simple script that monitors running processes and CPU temperature on a Linux system and sends alerts to a WebSocket server when certain thresholds are exceeded.
 
@@ -12,7 +12,6 @@ This script requires the following tools to be installed:
 -   `websocketd`
 
 You can install `bc` and `sensors` on Ubuntu or Debian systems with the following command:
-
 
 `sudo apt-get install bc lm-sensors`
 
